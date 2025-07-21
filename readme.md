@@ -54,6 +54,50 @@ Feel free to clone this repository and follow along. If you have any questions o
 
 ## Setup
 
+To begin working with Apache Iceberg tables using Spark and Dremio, we need to configure a few environment variables and launch our Spark containerized environment. This setup ensures secure and seamless connectivity between Spark and Dremio's REST catalog for table operations.
+
+### 1. Define Environment Variables in the Host
+
+Before launching the container, define the following environment variables in your terminal session. These values will be passed into the Spark container to enable secure communication with your Dremio instance.
+
+```bash
+export DREMIO_BASE_URI=localhost      # The base host name or IP where Dremio is running
+export DREMIO_PAT=your_dremio_pat     # A Personal Access Token used for authentication
+```
+
+**Why this matters:**
+Spark needs to authenticate with Dremio’s REST Catalog in order to create, query, and manage Apache Iceberg tables. By injecting these values into the container as environment variables, we avoid hardcoding sensitive information in the Docker Compose file and ensure flexibility across environments.
+
+**Note:** If Dremio is running on a different host or in a cloud environment, adjust DREMIO_BASE_URI accordingly.
+
+### 2. Launch the Spark Notebook Container
+Once your environment variables are defined, start your environment using:
+
+```bash
+docker-compose up spark
+```
+
+**Why this matters:**
+This will launch a JupyterLab notebook environment preconfigured with Spark, Iceberg, and the necessary Hadoop and AWS libraries. The container is set up to:
+
+- Connect to Dremio as an Iceberg catalog
+
+- Provide a local workspace for development
+
+- Run Spark in standalone mode with a master, worker, and history server
+
+- Expose a browser-based JupyterLab interface for writing and executing PySpark code
+
+After the container starts, you can access the notebook interface by visiting:
+
+```
+http://localhost:8888
+```
+
+No password is required, and you’ll find your seeded notebooks and scripts under the /workspace/seed-data directory.
+
+This interactive setup gives you full control over creating namespaces, managing Iceberg tables, and testing queries against your Dremio lakehouse—all without leaving your browser.
+
 
 ## Ingesting Data with Spark
 
