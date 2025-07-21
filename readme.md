@@ -267,14 +267,231 @@ With your data ingested into Iceberg tables, the next section will explore how t
 
 ## Reading the Data with Dremio
 
+Now that we’ve ingested sample data into Apache Iceberg tables using Spark, we can query and explore that data using Dremio’s SQL interface. Dremio allows you to treat Iceberg tables just like any other dataset—making it easy to query, join, create views, and accelerate performance through reflections.
+
+### Querying Iceberg Tables
+
+To query an Apache Iceberg table registered in Dremio’s catalog, use the fully qualified table name in the format:
+
+```
+<catalog-name>.<namespace>.<table-name>
+```
+
+Since we registered our tables under the `dremio` catalog and `demo` namespace, we can query the `customers` and `orders` tables as follows:
+
+```sql
+SELECT *
+FROM dremio.demo.customers;
+```
+```sql
+
+SELECT *
+FROM dremio.demo.orders;
+```
+You can also use typical SQL operations like filtering, grouping, and joining:
+
+```sql
+SELECT c.name, o.order_id, o.amount
+FROM dremio.demo.customers AS c
+JOIN dremio.demo.orders AS o
+  ON c.id = o.customer_id;
+```
+
+### Creating a View
+Let’s create a business-friendly view that summarizes total spend per customer:
+
+```sql
+CREATE OR REPLACE VIEW dremio.demo.customer_spend AS
+SELECT
+  c.name,
+  SUM(o.amount) AS total_spent
+FROM dremio.demo.customers c
+JOIN dremio.demo.orders o
+  ON c.id = o.customer_id
+GROUP BY c.name;
+```
+
+Views help abstract logic and create reusable, business-oriented datasets for analysts, dashboard tools, or downstream consumers.
+
+### Accelerating Queries with Reflections
+Once you’ve created a view, Dremio allows you to create reflections, which are materialized versions of that view or table optimized for fast access. You can create a raw or aggregation reflection on the view like this:
+
+```sql
+ALTER DATASET dremio.demo.customer_spend
+CREATE REFLECTION customer_spend_reflection
+USING RAW;
+```
+
+**Why reflections matter:**
+Reflections act like automatically maintained indexes and materialized views, giving you massive query acceleration without having to manage external tables or custom pipelines.
+
+**But there’s a catch:**
+On non-iceberg datasets, deciding which datasets to reflect, how often to refresh them, and managing storage and compute costs are entirely up to you. This requires understanding data usage patterns, performance bottlenecks, and cost trade-offs. But when you standardize on Apache Iceberg with Dremio, this becomes much easier.
+
+### Enter Dremio Enterprise: Autonomous Performance Management
+In the open-source version, reflection management is manual—you decide:
+
+- Which views or tables to reflect
+
+- What type of reflection to use (raw or aggregation)
+
+- How often to refresh it
+
+- When to expire or rebuild it
+
+This can become difficult to manage at scale, especially as datasets, users, and use cases grow.
+
+With Dremio Enterprise, autonomous performance management includes reflection management which simplifies all of this by automatically:
+
+- Identifying which datasets benefit most from acceleration
+
+- Creating and refreshing reflections based on workload patterns
+
+- Managing reflection lifecycles to optimize both performance and cost
+
+- This intelligence removes the guesswork from performance tuning and makes your Iceberg lakehouse more responsive and cost-efficient by default.
+
+### Bonus: Querying Iceberg Table Metadata
+Dremio also supports querying rich metadata from Iceberg tables using system functions:
+
+```sql
+SELECT *
+FROM TABLE(table_snapshot('dremio.demo.customers'));
+```
+
+```
+SELECT *
+FROM TABLE(table_history('dremio.demo.customers'));
+```
+
+This allows you to track data evolution, perform time travel queries, or monitor file-level metrics for optimizing compaction and performance tuning.
+
+By combining Apache Iceberg’s open format with Dremio’s lakehouse query engine, semantic layer, and acceleration capabilities, you gain both flexibility and speed—whether you manage reflections manually or let Dremio Enterprise take care of it for you.
 
 
 ## Understanding Dremio's Autonomous Performance Management
 
+One of the biggest challenges with running a performant and scalable data lakehouse is operational overhead. Whether it's deciding which datasets to materialize, when to run compaction jobs, or how to cache results effectively—these tasks require expertise, tuning, and constant attention.
 
+Dremio Enterprise dramatically simplifies this by introducing **autonomous performance management** for Apache Iceberg tables. While many platforms leave optimization to the user, Dremio takes a different approach: it automates the entire performance lifecycle.
+
+### Autonomous Reflections
+
+When working with Apache Iceberg tables in Dremio Enterprise, you no longer need to guess which datasets to accelerate or when to refresh them. Dremio’s autonomous reflection engine continuously monitors query workloads and usage patterns to:
+
+- Automatically create reflections for frequently queried views and datasets
+- Refresh reflections based on data freshness needs
+- Retire reflections that are no longer useful
+
+This ensures users always experience low-latency query performance—without the burden of manually configuring and managing materializations.
+
+### Automated Table Optimization
+
+Traditionally, maintaining Apache Iceberg tables requires manual compaction and file optimization using the `OPTIMIZE` command. In Dremio’s integrated catalog, however, this process is fully automated.
+
+Dremio detects when table fragmentation affects performance and handles:
+
+- **File compaction** (bin-packing small files into fewer large ones)
+- **Metadata pruning** (cleaning up snapshots and manifests)
+- **Partition optimization** (for query efficiency)
+
+These operations are run on a smart cadence based on data change patterns, ensuring your Iceberg tables stay healthy and performant.
+
+### End-to-End Caching
+
+Beyond materialization and compaction, Dremio also accelerates workloads through a **layered caching architecture**:
+
+- **Query Plan Cache**: Caches query plans to avoid recomputing them repeatedly
+- **Results Cache**: Serves cached results for identical queries with unchanged data
+- **Columnar Cloud Cache (C3)**: Locally caches frequently accessed table data in columnar format on the execution nodes
+
+Together, these caching layers significantly reduce query execution times, improve concurrency, and lower compute costs.
+
+### No Tuning Required
+
+What sets Dremio apart is that **all of these capabilities work automatically**. There’s no scheduling of jobs, no manual tuning, and no pipeline maintenance. You simply connect to your Iceberg catalog, start querying—and Dremio ensures those queries are fast.
+
+With Dremio Enterprise, your Iceberg tables just work—efficiently, reliably, and at speed. This makes it easier for data teams to focus on building insights rather than maintaining infrastructure.
 
 ## Creating Context with Dremio's Context/Semantic Layer
 
+The true power of a data platform isn’t just in how fast it can query data—it’s in how well it helps users understand, discover, and collaborate on that data. Dremio’s built-in **Semantic Layer** delivers exactly that by allowing teams to define, document, and share meaningful business context directly within the platform.
 
+At the heart of Dremio’s Semantic Layer is its ability to curate relationships between datasets, views, and metrics in a governed, centralized way. This foundational context unlocks several key capabilities that go far beyond traditional data access.
+
+---
+
+### Smarter Accelerations
+
+When Dremio understands the relationships between datasets—such as how a business metric is built from a set of joins or aggregations—it can make better decisions about **which reflections to create** and **how to reuse them** across different views. This means:
+
+- Less duplication of effort
+- Broader reuse of cached and materialized data
+- Better performance with fewer resources
+
+The Semantic Layer works hand-in-hand with Dremio’s **autonomous performance management**, making it even easier to deliver fast, optimized analytics with no manual tuning.
+
+---
+
+### AI-Ready Metadata with the MCP Server
+
+As organizations begin integrating AI into their data ecosystems, context becomes critical. Dremio’s **Model Context Protocol (MCP) server** taps into the Semantic Layer to provide AI applications with a rich understanding of:
+
+- Dataset relationships
+- Business definitions
+- Data lineage
+- Access policies
+
+This enables large language models (LLMs) to interact with data more intelligently—whether answering natural language questions, generating SQL, or building automated data pipelines.
+
+---
+
+### Discoverability Through Semantic Search
+
+With the Semantic Layer, Dremio offers **Semantic Search**—a natural language search engine for data discovery. Users can simply describe what they’re looking for, and Dremio will surface relevant datasets, dashboards, and documentation—even if the keywords don’t exactly match the table names.
+
+This makes it easy for business users and analysts to find the right data without needing to memorize table structures or SQL syntax.
+
+### Every Dataset and Folder Has a Wiki
+
+Each folder and dataset in Dremio’s Semantic Layer includes a **built-in wiki**, where users can:
+
+- Document table purpose, usage, and business definitions
+- Assign data owners and contacts
+- Track data SLAs and quality notes
+
+This lightweight documentation layer empowers teams to collaborate more effectively, increases data literacy across the organization, and reduces dependency on tribal knowledge.
+
+### Bringing It All Together
+
+By combining:
+
+- **Less work to achieve performance** (via autonomous reflections and caching)
+- **Better data collaboration** (through structured context and wiki documentation)
+- **Open governance and flexibility** (via Dremio’s Apache Iceberg-based catalog)
+
+Dremio creates a unified, intelligent lakehouse environment that supports both technical and non-technical users.
+
+The Semantic Layer is more than just metadata—it’s how Dremio makes your data not just faster, but more usable, understandable, and trusted.
 
 ## Summary
+
+This workshop has taken you through a complete, hands-on journey of building and managing an Apache Iceberg-based data lakehouse using Dremio.
+
+You began by spinning up a local environment with Docker, configuring Spark to connect to Dremio’s integrated Iceberg catalog, and ingesting data using PySpark. From there, you explored how to query and join that data in Dremio, create reusable views, and accelerate performance using reflections.
+
+But more importantly, you’ve seen how Dremio goes beyond just querying data.
+
+With **Dremio Enterprise**, the platform delivers:
+
+- **Autonomous performance management**, removing the burden of manual tuning by automatically managing reflections, optimizing tables, and caching queries.
+- A **built-in semantic layer**, allowing teams to define relationships, document datasets, and collaborate across a shared context.
+- Enhanced **AI-readiness** through the **MCP server**, enabling AI systems to query governed, contextualized data responsibly and efficiently.
+- **Semantic Search** and **dataset wikis**, making it easier than ever to find and understand the data you need.
+
+Apache Iceberg provides the foundation for an open and interoperable lakehouse, but it’s Dremio that brings it to life—making it simple, fast, and collaborative for everyone in your organization.
+
+By the end of this workshop, you’ve not only gained hands-on experience with Iceberg and Dremio—you’ve experienced what a modern, intelligent lakehouse can be.
+
+Now you're ready to bring these capabilities into your own data platform strategy.
+
