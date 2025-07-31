@@ -28,6 +28,7 @@ conf = (
         .set('spark.sql.catalog.dremio.uri', DREMIO_CATALOG_URI)
         .set('spark.sql.catalog.dremio.warehouse', 'default')  # Not used but required by Spark
         .set('spark.sql.catalog.dremio.cache-enabled', 'false')
+        .set('spark.sql.catalog.dremio.header.X-Iceberg-Access-Delegation', 'vended-credentials')
         # Configure OAuth2 authentication using PAT
         .set('spark.sql.catalog.dremio.rest.auth.type', 'com.dremio.iceberg.authmgr.oauth2.OAuth2Manager')
         .set('spark.sql.catalog.dremio.rest.auth.oauth2.token-endpoint', DREMIO_AUTH_URI)
