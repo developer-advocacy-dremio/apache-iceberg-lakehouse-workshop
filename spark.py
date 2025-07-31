@@ -18,8 +18,8 @@ DREMIO_AUTH_URI = f'http://{DREMIO_BASE_URI}:9047/oauth/token'
 conf = (
     pyspark.SparkConf()
         .setAppName('DremioIcebergSparkApp')
-        # Required external packages
-        .set('spark.jars.packages', 'org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.9.2,com.dremio.iceberg.authmgr:authmgr-oauth2:0.0.5')
+        # Required external packages For FILEIO (org.apache.iceberg:iceberg-azure-bundle:1.9.2, org.apache.iceberg:iceberg-aws-bundle:1.9.2, org.apache.iceberg:iceberg-azure-bundle:1.9.2, org.apache.iceberg:iceberg-gcp:1.9.2)
+        .set('spark.jars.packages', 'org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.9.2,com.dremio.iceberg.authmgr:authmgr-oauth2-runtime:0.0.5')
         # Enable Iceberg Spark extensions
         .set('spark.sql.extensions', 'org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions')
         # Define Dremio catalog configuration using RESTCatalog
