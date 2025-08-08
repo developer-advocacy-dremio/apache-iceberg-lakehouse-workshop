@@ -40,3 +40,48 @@ Now that you’ve seen how easy it is to use **any tool** with the Dremio Catalo
 
 By relying on the Dremio Catalog, you get a secure, optimized, and fully managed Iceberg catalog experience that’s ready for interoperability across your entire data ecosystem.
 
+## Part 4 – Getting Hands-on
+
+Now that you’ve seen me ingest data using Spark and query it with Dremio, it’s your turn to get hands-on with Dremio.
+
+Use the link provided to access your **evaluation Dremio environment**. From there, we’ll add the **"sample"** source, which comes preloaded with sample datasets for us to query and explore.
+
+You’ll see how straightforward it is to:
+
+- **Add data sources** and start querying them in Dremio.
+- **Create views** from sample data to experience how Dremio’s **AI-enabled semantic layer** works with your Iceberg data.
+- **Explore engine management and jobs** to learn how to find detailed information about your queries and scale your lakehouse environment.
+
+By the end of this section, you’ll have hands-on experience navigating Dremio, connecting to data, creating semantic views, and understanding how to monitor and manage your lakehouse workloads.
+
+## Part 5 – Autonomous Reflections and Performance Management
+
+In this section, I’ll demonstrate the power of **Dremio’s reflections** feature. Reflections are already a game-changer for accelerating queries, but when running an **Apache Iceberg lakehouse** in Dremio, they become even more impactful.
+
+Dremio can **autonomously manage your accelerations**, allowing your data performance to improve without manual intervention. This means:
+
+- **Automatic Table Optimization** – All tables in the Dremio Catalog are continually optimized for performance without the need for custom maintenance jobs.
+- **Autonomous Acceleration Management** – Acceleration for all your Iceberg tables is handled automatically, ensuring queries are always as fast as possible.
+- **End-to-End Caching Layers** – Multiple layers of caching provide additional speed, delivering **industry-leading performance** for both AI and BI workloads.
+
+When you build your Iceberg lakehouse with Dremio, you’re not just creating a modern data platform—you’re enabling a system that keeps itself optimized, accelerated, and ready to handle demanding analytical workloads without constant manual tuning.
+
+## Summary – Why Dremio is the Ideal Platform for Your Apache Iceberg Lakehouse
+
+Throughout this workshop, we’ve explored how Dremio not only supports Apache Iceberg but takes it to the next level, delivering a lakehouse platform that is open, interoperable, and self-optimizing.
+
+**Key advantages of using Dremio for your Iceberg lakehouse:**
+
+- **True Interoperability** – Powered by Apache Polaris and the Apache Iceberg REST Catalog interface, the Dremio Catalog connects seamlessly with a wide range of tools and engines—Spark, Trino, Fivetran, Confluent, and more—ensuring all teams can work with the same data without duplication or proprietary lock-in.
+
+- **Fully Managed Catalog Experience** – The Dremio Catalog is built into your Dremio deployment, eliminating the need to provision, deploy, or manage a separate catalog service. It’s ready from day one.
+
+- **Enterprise-Grade Governance** – Built-in RBAC and FGAC capabilities integrate with your preferred identity provider, giving you fine-grained control over who can see and query data.
+
+- **Autonomous Optimization and Acceleration** – Dremio continuously optimizes Iceberg tables and manages query accelerations with reflections—no manual compaction, clustering, or tuning required. Your performance improves automatically.
+
+- **Industry-Leading Query Performance** – End-to-end caching layers and autonomous acceleration ensure your AI and BI workloads run with unmatched speed.
+
+- **Unified Semantic Layer** – Create semantic views on top of Iceberg data and expose consistent business definitions across your organization, powered by Dremio’s AI-enabled capabilities.
+
+By combining Apache Iceberg’s open table format with Dremio’s intelligent lakehouse platform, you get the scalability, flexibility, and openness of Iceberg with the ease-of-use, governance, and performance automation that only Dremio provides. This is a lakehouse architecture built for modern enterprises—ready to deliver fast, secure, and consistent insights across your entire data ecosystem.

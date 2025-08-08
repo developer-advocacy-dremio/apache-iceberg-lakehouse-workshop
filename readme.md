@@ -4,6 +4,8 @@ Welcome to the **Dremio Apache Iceberg Workshop**!
 
 This hands-on workshop is designed to help you explore how the **Dremio Intelligent Lakehouse Platform** empowers modern Apache Iceberg lakehouse architectures. Throughout the workshop, you will gain practical experience with Dremio’s features and understand how they enhance performance, governance, and usability for Iceberg-based data environments.
 
+[Workshop Agenda](./workshop.md)
+
 ## Purpose of Workshop
 
 Modern data teams often work in silos, each using different tools and platforms to meet their specific needs. This fragmentation can make it difficult to share data, enforce consistency, and deliver timely insights across the organization. Apache Iceberg addresses this challenge by providing an open, interoperable table format that supports reliable, high-performance analytics across a variety of engines and tools.
