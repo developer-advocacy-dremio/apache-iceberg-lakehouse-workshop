@@ -12,7 +12,7 @@ if not DREMIO_BASE_URI or not DREMIO_PAT:
 
 # Construct Dremio REST catalog and auth URIs
 DREMIO_CATALOG_URI = f'http://{DREMIO_BASE_URI}:8181/api/catalog'
-DREMIO_AUTH_URI = f'http://{DREMIO_BASE_URI}:9047/oauth/token'
+DREMIO_AUTH_URI = f'http://{DREMIO_BASE_URI}/oauth/token'
 
 # Configure Spark session with Iceberg and Dremio catalog settings
 conf = (
