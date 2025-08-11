@@ -9,5 +9,6 @@ FROM   Samples."samples.dremio.com"."NYC-taxi-trips-iceberg"
 
 --- after reflections (different aggregations to avoid cache)
 SELECT AVG(total_amount) as avg_total,
-       AVG(tip_amount) as tip,
+       AVG(tip_amount) as tip
 FROM   Samples."samples.dremio.com"."NYC-taxi-trips-iceberg"
+
