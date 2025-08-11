@@ -5,7 +5,7 @@ Welcome to the **Dremio Apache Iceberg Workshop**!
 This hands-on workshop is designed to help you explore how the **Dremio Intelligent Lakehouse Platform** empowers modern Apache Iceberg lakehouse architectures. Throughout the workshop, you will gain practical experience with Dremio’s features and understand how they enhance performance, governance, and usability for Iceberg-based data environments.
 
 - [Workshop Agenda](./workshop.md)
-- [Guided Demo](https://dremio.navattic.com/whb02kg)
+- [Self-Guided Demo (Can be done outside of workshops)](https://dremio.navattic.com/whb02kg)
 
 ## Purpose of Workshop
 
