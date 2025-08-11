@@ -85,3 +85,5 @@ Throughout this workshop, we’ve explored how Dremio not only supports Apache I
 - **Unified Semantic Layer** – Create semantic views on top of Iceberg data and expose consistent business definitions across your organization, powered by Dremio’s AI-enabled capabilities.
 
 By combining Apache Iceberg’s open table format with Dremio’s intelligent lakehouse platform, you get the scalability, flexibility, and openness of Iceberg with the ease-of-use, governance, and performance automation that only Dremio provides. This is a lakehouse architecture built for modern enterprises—ready to deliver fast, secure, and consistent insights across your entire data ecosystem.
+
+- [Guided Demo](https://dremio.navattic.com/whb02kg)
