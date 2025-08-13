@@ -11,8 +11,8 @@ if not DREMIO_BASE_URI or not DREMIO_PAT:
     raise ValueError("Please set environment variables DREMIO_BASE_URI and DREMIO_PAT.")
 
 # Construct Dremio REST catalog and auth URIs
-DREMIO_CATALOG_URI = f'http://{DREMIO_BASE_URI}:8181/api/catalog'
-DREMIO_AUTH_URI = f'http://{DREMIO_BASE_URI}/oauth/token'
+DREMIO_CATALOG_URI = f'{DREMIO_BASE_URI}:8181/api/catalog'
+DREMIO_AUTH_URI = f'{DREMIO_BASE_URI}/oauth/token'
 
 # Configure Spark session with Iceberg and Dremio catalog settings
 conf = (
@@ -44,11 +44,13 @@ spark = SparkSession.builder.config(conf=conf).getOrCreate()
 print("✅ Spark session connected to Dremio Catalog.")
 
 # Step 1: Create a namespace (schema) in the Dremio catalog
-spark.sql("CREATE NAMESPACE IF NOT EXISTS dremio.demo")
+spark.sql("CREATE NAMESPACE IF NOT EXISTS dremio.db")
+# spark.sql("CREATE NAMESPACE IF NOT EXISTS dremio.db.test1")
+print("✅ Namespaces Created")
 
 # Step 2: Create sample Iceberg tables in the Dremio catalog
 spark.sql("""
-CREATE TABLE IF NOT EXISTS dremio.demo.customers (
+CREATE TABLE IF NOT EXISTS dremio.db.customers (
     id INT,
     name STRING,
     email STRING
@@ -57,13 +59,15 @@ USING iceberg
 """)
 
 spark.sql("""
-CREATE TABLE IF NOT EXISTS dremio.demo.orders (
+CREATE TABLE IF NOT EXISTS dremio.db.orders (
     order_id INT,
     customer_id INT,
     amount DOUBLE
 )
 USING iceberg
 """)
+
+print("✅ Tables Created")
 
 # Step 3: Insert sample data into the tables
 customers_data = [
@@ -76,10 +80,16 @@ orders_data = [
     Row(order_id=102, customer_id=2, amount=99.99)
 ]
 
+print("✅ Dataframes Generated")
+
 customers_df = spark.createDataFrame(customers_data)
 orders_df = spark.createDataFrame(orders_data)
 
-customers_df.writeTo("dremio.demo.customers").append()
-orders_df.writeTo("dremio.demo.orders").append()
+customers_df.writeTo("dremio.db.customers").append()
+orders_df.writeTo("dremio.db.orders").append()
 
 print("✅ Tables created and sample data inserted.")
+
+### Uncomment Code Below to Query a Table Created In Dremio
+
+# spark.sql("SELECT * FROM dremio.db.test").show()
