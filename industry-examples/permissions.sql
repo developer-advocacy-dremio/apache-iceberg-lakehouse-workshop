@@ -5,4 +5,7 @@ ON PROJECT
 TO USER "alphatest2user@alexmerced.com";
 
 -- Give Permissions to Namespace in Catalog
-GRANT USAGE on FOLDER "dremio" to USER "alphatest2user@alexmerced.com";
+GRANT ALTER, USAGE, SELECT, WRITE, DROP on FOLDER "dremio" to USER "alphatest2user@alexmerced.com";
+
+-- Give Permissions to Namespace in Catalog
+GRANT ALTER, USAGE, SELECT, WRITE, DROP on FOLDER dremio.recipes to USER "alphatest2user@alexmerced.com";
