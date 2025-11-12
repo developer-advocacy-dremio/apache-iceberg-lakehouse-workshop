@@ -39,13 +39,13 @@ CREATE TABLE IF NOT EXISTS dremio.manufacturing.raw.sensor_readings (
   machine_id    VARCHAR,
   sensor_type   VARCHAR,     -- TEMP / VIB / RPM
   reading_ts    TIMESTAMP,
-  value         DECIMAL(10,3),
+  "value"         DECIMAL(10,3),
   unit          VARCHAR
 )
 PARTITION BY (DAY(reading_ts));
 
 INSERT INTO dremio.manufacturing.raw.sensor_readings
-(reading_id, machine_id, sensor_type, reading_ts, value, unit) VALUES
+(reading_id, machine_id, sensor_type, reading_ts, "value", unit) VALUES
   (9001,'M001','TEMP',TIMESTAMP '2025-08-10 10:00:00', 68.2, 'C'),
   (9002,'M001','VIB', TIMESTAMP '2025-08-10 10:00:05',  3.2, 'mm/s'),
   (9003,'M002','TEMP',TIMESTAMP '2025-08-10 10:01:00', 72.5, 'C'),
@@ -94,9 +94,9 @@ SELECT
   r.machine_id,
   r.sensor_type,
   r.reading_ts,
-  r.value,
+  r."value",
   CASE WHEN r.machine_id IS NULL OR r.sensor_type IS NULL OR r.reading_ts IS NULL THEN 1 ELSE 0 END AS has_nulls,
-  CASE WHEN r.value < b.min_v OR r.value > b.max_v THEN 1 ELSE 0 END AS out_of_range,
+  CASE WHEN r."value" < b.min_v OR r."value" > b.max_v THEN 1 ELSE 0 END AS out_of_range,
   CASE WHEN d.reading_id IS NOT NULL THEN 1 ELSE 0 END AS is_duplicate_id
 FROM dremio.manufacturing.raw.sensor_readings r
 LEFT JOIN bounds b ON r.sensor_type = b.sensor_type
@@ -146,10 +146,10 @@ SELECT
   r.machine_id,
   UPPER(TRIM(r.sensor_type)) AS sensor_type,
   r.reading_ts,
-  r.value,
+  r."value",
   r.unit,
   TO_DATE(r.reading_ts) AS reading_date,
-  CASE WHEN r.value < b.min_v OR r.value > b.max_v THEN 1 ELSE 0 END AS out_of_range_flag
+  CASE WHEN r."value" < b.min_v OR r."value" > b.max_v THEN 1 ELSE 0 END AS out_of_range_flag
 FROM dremio.manufacturing.raw.sensor_readings r
 LEFT JOIN bounds b ON UPPER(TRIM(r.sensor_type)) = b.sensor_type;
 
@@ -184,7 +184,7 @@ SELECT
   s.sensor_type,
   s.reading_ts,
   s.reading_date,
-  s.value,
+  s."value",
   s.unit,
   s.out_of_range_flag,
   w.wo_id,
@@ -205,9 +205,9 @@ AS
 SELECT
   machine_id,
   reading_date,
-  AVG(CASE WHEN sensor_type = 'TEMP' THEN value END) AS avg_temp_c,
-  AVG(CASE WHEN sensor_type = 'VIB'  THEN value END) AS avg_vib_mms,
-  AVG(CASE WHEN sensor_type = 'RPM'  THEN value END) AS avg_rpm,
+  AVG(CASE WHEN sensor_type = 'TEMP' THEN "value" END) AS avg_temp_c,
+  AVG(CASE WHEN sensor_type = 'VIB'  THEN "value" END) AS avg_vib_mms,
+  AVG(CASE WHEN sensor_type = 'RPM'  THEN "value" END) AS avg_rpm,
   SUM(CASE WHEN out_of_range_flag = 1 THEN 1 ELSE 0 END) AS out_of_range_cnt
 FROM dremio.manufacturing.silver.sensor_clean
 GROUP BY machine_id, reading_date;
@@ -233,7 +233,7 @@ SELECT
   m.install_ts,
   CASE
     WHEN s.reading_ts < m.install_ts THEN 1
-    WHEN s.reading_ts > (m.install_ts + INTERVAL '365' DAY) THEN 1
+    WHEN s.reading_ts > (m.install_ts + INTERVAL '1' YEAR) THEN 1
     ELSE 0
   END AS temporal_issue_flag
 FROM dremio.manufacturing.silver.sensor_clean s
