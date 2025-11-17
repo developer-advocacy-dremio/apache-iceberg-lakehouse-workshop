@@ -124,7 +124,6 @@ SELECT
 
   -- AI_GENERATE: extract structured fields from free-text driver notes
   AI_GENERATE(
-    'gpt.4o',
     'You are analyzing logistics delivery notes. '
     || 'From the following text, extract: '
     || 'primary_issue (Traffic, Weather, Access, Mechanical, Customer, None, Other), '
@@ -187,7 +186,6 @@ SELECT
   daf.*,
 
   AI_CLASSIFY(
-    'gpt.4o',
     'Classify the operational risk level of this delivery using the driver notes and fields. '
     || 'Consider delays, damage, customer sentiment, and recurring issues. '
     || 'Return only: Low, Medium, High, or Critical. '
@@ -223,7 +221,6 @@ CREATE OR REPLACE VIEW dremio.logistics.silver.delivery_with_summary AS
 SELECT
   dwr.*,
   AI_COMPLETE(
-    'gpt.4o',
     'Write a one-sentence summary of this delivery event for logistics managers. '
     || 'Include route, city, delay vs schedule, main issue, and whether follow-up is needed. '
     || 'Be factual and concise. '
