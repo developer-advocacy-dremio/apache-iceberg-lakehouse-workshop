@@ -108,11 +108,19 @@ SELECT
   END AS status,
 
   CASE
-    -- ISO or slash date/time strings
-    WHEN crt_ts LIKE '%-%' OR crt_ts LIKE '%/%'
-      THEN TO_TIMESTAMP(crt_ts)
+    /* yyyy/mm/dd hh:mi:ss */
+    WHEN REGEXP_LIKE(crt_ts, '^[0-9]{4}/[0-9]{2}/[0-9]{2} ')
+      THEN TO_TIMESTAMP(crt_ts, 'YYYY/MM/DD HH24:MI:SS', 1)
 
-    -- Pure epoch seconds
+    /* yyyy-mm-ddThh:mi:ssZ */
+    WHEN REGEXP_LIKE(crt_ts, '^[0-9]{4}-[0-9]{2}-[0-9]{2}T')
+      THEN TO_TIMESTAMP(crt_ts, 'YYYY-MM-DD"T"HH24:MI:SS"Z"', 1)
+
+    /* dd-mm-yyyy hh:mi */
+    WHEN REGEXP_LIKE(crt_ts, '^[0-9]{2}-[0-9]{2}-[0-9]{4} ')
+      THEN TO_TIMESTAMP(crt_ts, 'DD-MM-YYYY HH24:MI', 1)
+
+    /* epoch seconds */
     WHEN REGEXP_LIKE(crt_ts, '^[0-9]+$')
       THEN TO_TIMESTAMP(CAST(crt_ts AS BIGINT))
 
@@ -120,6 +128,7 @@ SELECT
   END AS created_at
 
 FROM dremio.subscriptions.raw.cust_mstr;
+
 
 
 -- =========================================
@@ -163,21 +172,34 @@ SELECT
     ELSE 'UNKNOWN'
   END AS subscription_status,
 
-  -- Convert st_dt from mixed string formats to DATE
+  /* Date parsing using explicit formats for Dremio */
   CASE
-    -- ISO or slash formats
-    WHEN st_dt LIKE '%-%' OR st_dt LIKE '%/%'
-         THEN TO_DATE(st_dt)
-    -- Pure epoch seconds
+    -- yyyy-mm-dd
+    WHEN REGEXP_LIKE(st_dt, '^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+      THEN TO_DATE(st_dt, 'YYYY-MM-DD')
+
+    -- yyyy/mm/dd
+    WHEN REGEXP_LIKE(st_dt, '^[0-9]{4}/[0-9]{2}/[0-9]{2}$')
+      THEN TO_DATE(st_dt, 'YYYY/MM/DD')
+
+    -- mm/dd/yyyy
+    WHEN REGEXP_LIKE(st_dt, '^[0-9]{2}/[0-9]{2}/[0-9]{4}$')
+      THEN TO_DATE(st_dt, 'MM/DD/YYYY')
+
+    -- ISO timestamp (e.g. 2025-08-18T10:01:00Z)
+    WHEN REGEXP_LIKE(st_dt, '^[0-9]{4}-[0-9]{2}-[0-9]{2}T')
+      THEN TO_TIMESTAMP(st_dt, 'YYYY-MM-DD"T"HH24:MI:SS')
+
+    -- epoch seconds
     WHEN REGEXP_LIKE(st_dt, '^[0-9]+$')
-         THEN TO_DATE(TO_TIMESTAMP(CAST(st_dt AS BIGINT)))
+      THEN TO_DATE(TO_TIMESTAMP(CAST(st_dt AS BIGINT)))
+
     ELSE NULL
   END AS start_date,
 
-  -- Convert Y/N to boolean
-  CASE
-    WHEN rn_flg = 'Y' THEN TRUE
-    ELSE FALSE
+  CASE 
+    WHEN rn_flg = 'Y' THEN TRUE 
+    ELSE FALSE 
   END AS auto_renew
 
 FROM dremio.subscriptions.raw.subscrpt;
@@ -195,15 +217,19 @@ SELECT
   cust   AS customer_id,
   pl     AS plan_id,
 
-  /* Parse timestamp strings or epoch seconds */
+  /* Explicit timestamp parsing per known formats */
   CASE
-    -- ISO or slash timestamps
-    WHEN u_ts LIKE '%-%' OR u_ts LIKE '%/%'
-         THEN TO_TIMESTAMP(u_ts)
+    -- ISO timestamp with trailing Z
+    WHEN REGEXP_LIKE(u_ts, '^[0-9]{4}-[0-9]{2}-[0-9]{2}T')
+      THEN TO_TIMESTAMP(u_ts, 'YYYY-MM-DD"T"HH24:MI:SS"Z"', 1)
 
-    -- Epoch seconds
+    -- yyyy/mm/dd hh:mi
+    WHEN REGEXP_LIKE(u_ts, '^[0-9]{4}/[0-9]{2}/[0-9]{2} ')
+      THEN TO_TIMESTAMP(u_ts, 'YYYY/MM/DD HH24:MI', 1)
+
+    -- epoch seconds (int)
     WHEN REGEXP_LIKE(u_ts, '^[0-9]+$')
-         THEN TO_TIMESTAMP(CAST(u_ts AS BIGINT))
+      THEN TO_TIMESTAMP(CAST(u_ts AS BIGINT))
 
     ELSE NULL
   END AS event_ts,
@@ -218,6 +244,7 @@ SELECT
   qty_v AS event_value
 
 FROM dremio.subscriptions.raw.usage_evt;
+
 
 -- =========================================
 -- GOLD: Active Subscriptions
