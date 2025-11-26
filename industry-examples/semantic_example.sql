@@ -97,9 +97,9 @@ INSERT INTO dremio.subscriptions.raw.usage_evt VALUES
 -- =========================================
 CREATE OR REPLACE VIEW dremio.subscriptions.silver.customers AS
 SELECT
-  cid                AS customer_id,
-  c_nm               AS full_name,
-  c_eml              AS email,
+  cid AS customer_id,
+  c_nm AS full_name,
+  c_eml AS email,
 
   CASE 
     WHEN act_flg = 'C' THEN 'ACTIVE'
@@ -107,8 +107,18 @@ SELECT
     ELSE 'UNKNOWN'
   END AS status,
 
-  -- Convert mixed timestamp strings into proper TIMESTAMP
-  TRY_CAST(crt_ts AS TIMESTAMP) AS created_at
+  CASE
+    -- ISO or slash date/time strings
+    WHEN crt_ts LIKE '%-%' OR crt_ts LIKE '%/%'
+      THEN TO_TIMESTAMP(crt_ts)
+
+    -- Pure epoch seconds
+    WHEN REGEXP_LIKE(crt_ts, '^[0-9]+$')
+      THEN TO_TIMESTAMP(CAST(crt_ts AS BIGINT))
+
+    ELSE NULL
+  END AS created_at
+
 FROM dremio.subscriptions.raw.cust_mstr;
 
 
@@ -143,9 +153,9 @@ FROM dremio.subscriptions.raw.plan_tbl;
 -- =========================================
 CREATE OR REPLACE VIEW dremio.subscriptions.silver.subscriptions AS
 SELECT
-  sid                          AS subscription_id,
-  c_id                         AS customer_id,
-  pl_id                        AS plan_id,
+  sid AS subscription_id,
+  c_id AS customer_id,
+  pl_id AS plan_id,
 
   CASE 
     WHEN st_cd = 'A' THEN 'ACTIVE'
@@ -153,12 +163,23 @@ SELECT
     ELSE 'UNKNOWN'
   END AS subscription_status,
 
-  TRY_CAST(st_dt AS DATE)      AS start_date,
+  -- Convert st_dt from mixed string formats to DATE
+  CASE
+    -- ISO or slash formats
+    WHEN st_dt LIKE '%-%' OR st_dt LIKE '%/%'
+         THEN TO_DATE(st_dt)
+    -- Pure epoch seconds
+    WHEN REGEXP_LIKE(st_dt, '^[0-9]+$')
+         THEN TO_DATE(TO_TIMESTAMP(CAST(st_dt AS BIGINT)))
+    ELSE NULL
+  END AS start_date,
 
-  CASE rn_flg
-    WHEN 'Y' THEN TRUE
+  -- Convert Y/N to boolean
+  CASE
+    WHEN rn_flg = 'Y' THEN TRUE
     ELSE FALSE
   END AS auto_renew
+
 FROM dremio.subscriptions.raw.subscrpt;
 
 
@@ -170,14 +191,21 @@ FROM dremio.subscriptions.raw.subscrpt;
 -- =========================================
 CREATE OR REPLACE VIEW dremio.subscriptions.silver.usage_events AS
 SELECT
-  evt_id                     AS event_id,
-  cust                       AS customer_id,
-  pl                         AS plan_id,
+  evt_id AS event_id,
+  cust   AS customer_id,
+  pl     AS plan_id,
 
-  -- Convert multiple timestamp formats
-  CASE 
-    WHEN u_ts LIKE '%-%' OR u_ts LIKE '%/%' THEN TRY_CAST(u_ts AS TIMESTAMP)
-    ELSE TO_TIMESTAMP(CAST(u_ts AS BIGINT))     -- Epoch seconds
+  /* Parse timestamp strings or epoch seconds */
+  CASE
+    -- ISO or slash timestamps
+    WHEN u_ts LIKE '%-%' OR u_ts LIKE '%/%'
+         THEN TO_TIMESTAMP(u_ts)
+
+    -- Epoch seconds
+    WHEN REGEXP_LIKE(u_ts, '^[0-9]+$')
+         THEN TO_TIMESTAMP(CAST(u_ts AS BIGINT))
+
+    ELSE NULL
   END AS event_ts,
 
   CASE u_cd
@@ -187,7 +215,8 @@ SELECT
     ELSE 'UNKNOWN'
   END AS event_type,
 
-  qty_v                      AS event_value
+  qty_v AS event_value
+
 FROM dremio.subscriptions.raw.usage_evt;
 
 -- =========================================
@@ -252,10 +281,10 @@ GROUP BY e.customer_id;
 -- =========================================
 CREATE OR REPLACE VIEW dremio.subscriptions.gold.daily_active_users AS
 SELECT
-  DATE(event_ts) AS event_date,
+  CAST(event_ts AS DATE) AS event_date,
   COUNT(DISTINCT customer_id) AS dau
 FROM dremio.subscriptions.silver.usage_events
-GROUP BY DATE(event_ts);
+GROUP BY CAST(event_ts AS DATE);
 
 
 -- =========================================
