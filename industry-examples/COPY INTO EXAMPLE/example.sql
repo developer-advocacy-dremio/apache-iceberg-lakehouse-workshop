@@ -15,7 +15,7 @@ FROM '@s3/alex-merced-demo-2026/copy-into-example/'
 REGEX '.*\.csv'
 FILE_FORMAT 'csv'
 (
-  EXTRACT_HEADER = TRUE,
-  FIELD_DELIMITER = ',',
-  RECORD_DELIMITER = '\n'
+  EXTRACT_HEADER TRUE,
+  FIELD_DELIMITER ',',
+  RECORD_DELIMITER '\n'
 );
