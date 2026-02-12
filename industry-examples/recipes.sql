@@ -1,5 +1,6 @@
 -- Create the recipes table with an ARRAY column for ingredients (sample rows)
 -- Note: this uses CREATE TABLE AS SELECT to create a physical table with sample data.
+CREATE FOLDER IF NOT EXISTS dremio;
 CREATE FOLDER IF NOT EXISTS dremio.recipes;
 CREATE TABLE IF NOT EXISTS dremio.recipes.recipes AS
 SELECT 1 AS "id",
